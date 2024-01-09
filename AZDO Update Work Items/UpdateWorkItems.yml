@@ -14,8 +14,8 @@ steps:
       targetType: 'inline'
       script: |
                 # get last completed PUll Request for Specific Repo & Branch
-                $url = 'https://devops.ztwo.app/Portal_Collection/Z2Data/_apis/git/repositories/${{ parameters.RepoName }}/pullrequests?searchCriteria.status=completed&searchCriteria.targetRefName=refs/heads/${{ parameters.BranchName }}&api-version=7.0-preview.1'
-                $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":c5yaxuds5z6xd4uclbcbdphomo76jzz44grphtzoolob3zom6vdq"))
+                $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/git/repositories/${{ parameters.RepoName }}/pullrequests?searchCriteria.status=completed&searchCriteria.targetRefName=refs/heads/${{ parameters.BranchName }}&api-version=7.0-preview.1'
+                $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
                 $result = Invoke-RestMethod  $url -Method Get -ContentType "application/json" -Headers @{Authorization = "Basic $token"}
                 
                 # Get Pull Request ID
@@ -53,8 +53,8 @@ steps:
                         Write-Output "less than 10 minuts"
 
                         # get work items in pr
-                        $url = 'https://devops.ztwo.app/Portal_Collection/Z2Data/_apis/git/repositories/${{ parameters.RepoName }}/pullRequests/'+$pullRequestId+'/workitems?api-version=7.0-preview' 
-                        $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":c5yaxuds5z6xd4uclbcbdphomo76jzz44grphtzoolob3zom6vdq"))
+                        $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/git/repositories/${{ parameters.RepoName }}/pullRequests/'+$pullRequestId+'/workitems?api-version=7.0-preview' 
+                        $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
                         $result = Invoke-RestMethod  $url -Method Get -ContentType "application/json" -Headers @{Authorization = "Basic $token"}
                         
                         if ($result[0].value.count -gt 0) 
@@ -70,8 +70,8 @@ steps:
                                 } )
                               
                               # update Work Item State
-                              $url = 'https://devops.ztwo.app/Portal_Collection/Z2Data/_apis/wit/workitems/'+$WorkItemID.id+'?api-version=7.0'
-                              $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":c5yaxuds5z6xd4uclbcbdphomo76jzz44grphtzoolob3zom6vdq"))
+                              $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/wit/workitems/'+$WorkItemID.id+'?api-version=7.0'
+                              $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
                               $result = Invoke-RestMethod  $url -Method Patch -ContentType "application/json-patch+json" -Headers @{Authorization = "Basic $token"} -Body (ConvertTo-Json -InputObject $params)
                           }
                         }
