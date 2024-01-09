@@ -29,7 +29,7 @@ steps:
                 # get date now
                 $now_Date = Get-Date -Format "yyyy-MM-dd"
                 # get time now
-                $now_Time = "{0:h:mm:ss}" -f (get-date).ToUniversalTime()   # time on servers USA
+                $now_Time = [DateTime]::UtcNow | get-date -Format "HH:mm:ss"  
                 # $now_Time = Get-Date -Format "HH:mm:ss"
 
                 write-Output "pullRequestId $pullRequestId"
