@@ -73,6 +73,7 @@ steps:
                               $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/wit/workitems/'+$WorkItemID.id+'?api-version=7.0'
                               $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
                               $result = Invoke-RestMethod  $url -Method Patch -ContentType "application/json-patch+json" -Headers @{Authorization = "Basic $token"} -Body (ConvertTo-Json -InputObject $params)
+                              Write-Output "done"
                           }
                         }
                     }
