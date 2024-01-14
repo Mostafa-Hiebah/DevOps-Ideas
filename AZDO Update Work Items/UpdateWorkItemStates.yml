@@ -43,46 +43,55 @@ steps:
                 $diff_Minuts= New-TimeSpan -Start $closedDate_Time -End  $now_Time
                 # write-Output $diff_Minuts
                 write-Output "TotalMinutes $diff_Minuts[0].TotalMinutes"
-
-                # if pr date is equal to current date or less by 1 day ... this is because time zone in USA
-                if (($closedDate_Date.Split("-")[0] -eq $now_Date.Split("-")[0]) -and ($closedDate_Date.Split("-")[1] -eq $now_Date.Split("-")[1]) -and (($closedDate_Date.Split("-")[2] -eq $now_Date.Split("-")[2]) -or (($closedDate_Date.Split("-")[2]-1) -eq $now_Date.Split("-")[2])) )
+                
+                # if source branch not prod or stage >> this for merge back not affect work items
+                $sourceBranch = @('refs/heads/Prod','refs/heads/prod','refs/heads/Stage','refs/heads/stage')
+                if ($result[0].value[0].sourceRefName -notin $sourceBranch )
                 {
-                    # if diff minuts less than 10 minuts
-                    if (($diff_Minuts[0].TotalMinutes -gt 0 ) -and ($diff_Minuts[0].TotalMinutes -lt 10 ))
-                    {
-                        Write-Output "less than 10 minuts"
-
-                        # get work items in pr
-                        $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/git/repositories/${{ parameters.RepoName }}/pullRequests/'+$pullRequestId+'/workitems?api-version=7.0-preview' 
-                        $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
-                        $result = Invoke-RestMethod  $url -Method Get -ContentType "application/json" -Headers @{Authorization = "Basic $token"}
-                        
-                        if ($result[0].value.count -gt 0) 
-                        {
-                          foreach ($WorkItemID in $result[0].value) 
+                  # if pr date is equal to current date or less by 1 day ... this is because time zone in USA
+                  if (($closedDate_Date.Split("-")[0] -eq $now_Date.Split("-")[0]) -and ($closedDate_Date.Split("-")[1] -eq $now_Date.Split("-")[1]) -and (($closedDate_Date.Split("-")[2] -eq $now_Date.Split("-")[2]) -or (($closedDate_Date.Split("-")[2]-1) -eq $now_Date.Split("-")[2])) )
+                  {
+                      # if diff minuts less than 10 minuts
+                      if (($diff_Minuts[0].TotalMinutes -gt 0 ) -and ($diff_Minuts[0].TotalMinutes -lt 10 ))
+                      {
+                          Write-Output "less than 10 minuts"
+  
+                          # get work items in pr
+                          $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/git/repositories/${{ parameters.RepoName }}/pullRequests/'+$pullRequestId+'/workitems?api-version=7.0-preview' 
+                          $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
+                          $result = Invoke-RestMethod  $url -Method Get -ContentType "application/json" -Headers @{Authorization = "Basic $token"}
+                          
+                          if ($result[0].value.count -gt 0) 
                           {
-                              Write-Output $WorkItemID.id
-
-                              $params = @(@{
-                                  "op"= "add";
-                                  "path"= "/fields/System.State";
-                                  "value"= "${{ parameters.ItemState }}"
-                                } )
-                              
-                              # update Work Item State
-                              $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/wit/workitems/'+$WorkItemID.id+'?api-version=7.0'
-                              $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
-                              $result = Invoke-RestMethod  $url -Method Patch -ContentType "application/json-patch+json" -Headers @{Authorization = "Basic $token"} -Body (ConvertTo-Json -InputObject $params)
-                              Write-Output "done"
+                            foreach ($WorkItemID in $result[0].value) 
+                            {
+                                Write-Output $WorkItemID.id
+  
+                                $params = @(@{
+                                    "op"= "add";
+                                    "path"= "/fields/System.State";
+                                    "value"= "${{ parameters.ItemState }}"
+                                  } )
+                                
+                                # update Work Item State
+                                $url = 'https://dev.azure.com/mostafa-hiebah/company/_apis/wit/workitems/'+$WorkItemID.id+'?api-version=7.0'
+                                $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":jdf55g4fgdefg4rf6fre44tht3gg5xz65dsw"))
+                                $result = Invoke-RestMethod  $url -Method Patch -ContentType "application/json-patch+json" -Headers @{Authorization = "Basic $token"} -Body (ConvertTo-Json -InputObject $params)
+                                Write-Output "done"
+                            }
                           }
-                        }
-                    }
-                    else 
-                    {
-                        Write-Output "greater than 10 minuts"
-                    }
+                      }
+                      else 
+                      {
+                          Write-Output "greater than 10 minuts"
+                      }
+                  }
+                  else 
+                  {
+                      Write-Output "not same date"
+                  }
                 }
                 else 
                 {
-                    Write-Output "not same date"
+                  write-Output "not valid source branch"
                 }
